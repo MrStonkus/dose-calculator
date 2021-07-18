@@ -1,0 +1,23 @@
+{
+  "name": "doze-calculator",
+  "version": "1.0.0",
+  "description": "This code calculatate INR drugs weekly doze",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrStonkus/doze-calculator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MrStonkus/doze-calculator/issues"
+  },
+  "homepage": "https://github.com/MrStonkus/doze-calculator#readme",
+  "devDependencies": {
+    "eslint": "^7.31.0",
+    "eslint-plugin-vue": "^7.14.0"
+  }
+}
