@@ -32,9 +32,13 @@ function createDrugPart(drugID, part, concentration) {
 function createDose(drug_part) {
   return {
     id: newUid(),
-    drug_part
+    drug_part: drug_part,
+    concentration: function () {
+      //TODO reikia dabaigti
+      return drug_part.concentration.reduce((a, b) => a + b, 0)
+    }
+    }
   }
-}
 
 //create new drugs_array
 var drugs_array = []
@@ -93,8 +97,6 @@ for (let size1 of sizes_array) {
         
         let dose = createDose(total.parts)
         doses_array.push(dose)
-        // dose = createDose(part.drugID, part.concentration, part.part)
-
       }
     }
   }
@@ -111,7 +113,7 @@ for (let i = 0; i < number_of_days_to_calculate_doses; i++) {
 
   let closest_size = 0
   let smallest_diff = 9999
-  for (let size of drug_parts) {
+  for (let size of doses_array) {
     let diff = Math.abs(size - balance)
     if (diff < smallest_diff) {
       smallest_diff = diff
