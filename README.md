@@ -1,3 +1,3 @@
 # doze-calculator
 
-This code calculatate INR drugs weekly doze
+This code calculatate INR drugs weekly dose
