@@ -3,24 +3,28 @@ var recomended_weekly_doze = 43
 var recomended_daily_dose = recomended_weekly_doze / 7
 var dose_variants_max_value = 10
 var number_of_days_to_calculate_doses = 7
-var drugs = [
-  {
-    name: 'Orfarin',
-    concentration: 5,
-    measurement: 'mg',
-    quantity: 100,
-    unit: 'tablet',
-    can_split: true,
-  },
-  {
-    name: 'Orfarin',
-    concentration: 3,
-    measurement: 'mg',
-    quantity: 100,
-    unit: 'tablet',
-    can_split: true,
-  },
-]
+
+//Factory function of drug
+function createDrug(id,name, concentration, measurement, quantity, unit, can_split) {
+  return {
+    id,
+    name,
+    concentration,
+    measurement,
+    quantity,
+    unit,
+    can_split,
+  }
+}
+//generates unique id
+function newUid() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2)
+}
+
+//create new drugs
+var drugs = []
+drugs.push(createDrug(newUid(), 'Orfarin', 5, 'mg', 100, 'tablet', true))
+drugs.push(createDrug(newUid(), 'Orfarin', 3, 'mg', 100, 'tablet', true))
 
 //List parrameters
 console.log('Weekly doze: ' + recomended_weekly_doze)
@@ -42,15 +46,15 @@ for (let drug of drugs) {
 //Expand dose variants
 let sizes_array = Array.from(dose_sizes)
 for (let size1 of sizes_array) {
-    for (let size2 of sizes_array) {
-      let total = size1
-      while (total + size2 <= dose_variants_max_value) {
-        total += size2
-        dose_sizes.add(total)
+  for (let size2 of sizes_array) {
+    let total = size1
+    while (total + size2 <= dose_variants_max_value) {
+      total += size2
+      dose_sizes.add(total)
     }
   }
 }
-
+console.log('Dose variants: ');
 console.log(Array.from(dose_sizes).sort((a, b) => a - b))
 
 // Define daily doses
@@ -68,7 +72,7 @@ for (let i = 0; i < number_of_days_to_calculate_doses; i++) {
       closest_size = size
     }
   }
-    
+
   daily_doses.push(closest_size)
   balance -= closest_size
 }
@@ -82,3 +86,5 @@ for (let i = 0; i < daily_doses.length; i++) {
 var consumed_weekly = (sum_of_consumption / daily_doses.length) * 7
 console.log('Recommended per week: ' + recomended_weekly_doze)
 console.log('Consumed per week: ' + consumed_weekly)
+
+
