@@ -1,61 +1,107 @@
 //Define initial parrameters
-var recomended_weekly_doze = 43
+var recomended_weekly_doze = 41
 var recomended_daily_dose = recomended_weekly_doze / 7
 var dose_variants_max_value = 10
-var number_of_days_to_calculate_doses = 7
-
-//Factory function of drug
-function createDrug(id,name, concentration, measurement, quantity, unit, can_split) {
+var number_of_days_to_calculate_doses = 28
+//generates unique id
+function newUid() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2)
+}
+//create unique drugs_array - Factory function
+function createDrugs(name, concentration, measurement, quantity, unit, can_split) {
   return {
-    id,
+    id: newUid(),
     name,
     concentration,
     measurement,
     quantity,
     unit,
-    can_split,
+    can_split, //can one tablet be splitted to two parts? true/false
   }
 }
-//generates unique id
-function newUid() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2)
+//creates drug parts(tablete/pils) 
+function createDrugPart(drugID, part, concentration) {
+  return {
+    id: newUid(),
+    drugID,
+    part,
+    concentration  
+  }
+}
+//creates drug dose with tablete parts information 
+function createDose(drug_part) {
+  return {
+    id: newUid(),
+    drug_part
+  }
 }
 
-//create new drugs
-var drugs = []
-drugs.push(createDrug(newUid(), 'Orfarin', 5, 'mg', 100, 'tablet', true))
-drugs.push(createDrug(newUid(), 'Orfarin', 3, 'mg', 100, 'tablet', true))
+//create new drugs_array
+var drugs_array = []
+drugs_array.push(createDrugs('Orfarin', 5, 'mg', 100, 'tablet', true))
+drugs_array.push(createDrugs('Orfarin', 3, 'mg', 100, 'tablet', true))
 
-//List parrameters
+//log info
 console.log('Weekly doze: ' + recomended_weekly_doze)
-console.log('Daily dose: ' + recomended_daily_dose + drugs[0].measurement)
-for (let i = 0; i < drugs.length; i++) {
-  console.log(drugs[i])
+console.log('Daily dose: ' + recomended_daily_dose + drugs_array[0].measurement)
+console.log('Drugs:');
+for (let drug of drugs_array) {
+  console.log(drug)
 }
 
-//Define dose variants array
-var dose_sizes = new Set()
-
-for (let drug of drugs) {
-  dose_sizes.add(drug.concentration)
+//define default drug parts
+var drug_parts = []
+var concentration_array = []
+for (let drug of drugs_array) {
+  
+  drug_parts.push(createDrugPart(drug.id, 1, drug.concentration))
+  concentration_array.push(drug.concentration)  
   if (drug.can_split) {
-    dose_sizes.add(drug.concentration / 2)
+    drug_parts.push(createDrugPart(drug.id, 0.5, drug.concentration /2))
+    concentration_array.push(drug.concentration)  
   }
 }
+console.log('List of drug parts');
+console.log(drug_parts);
 
-//Expand dose variants
-let sizes_array = Array.from(dose_sizes)
+//create default variants of doses
+var doses_array = []
+for (part of drug_parts) {
+  let dose = createDose(part)
+  doses_array.push(dose)
+}
+console.log('Doses');
+console.log(doses_array);
+
+
+//Expand parts variants
+let sizes_array = Array.from(drug_parts)
 for (let size1 of sizes_array) {
   for (let size2 of sizes_array) {
-    let total = size1
-    while (total + size2 <= dose_variants_max_value) {
-      total += size2
-      dose_sizes.add(total)
+    let total = {
+      sum: size1.concentration,
+      parts: [size1]
+    }
+    while (total.sum + size2.concentration <= dose_variants_max_value) {
+      total.sum = total.sum + size2.concentration
+      total.parts.push(size2)
+      
+      if (!concentration_array.find(e => e === total.sum)) {
+        
+        concentration_array.push(total.sum)
+        drug_parts.push(total)
+        
+        let dose = createDose(total.parts)
+        doses_array.push(dose)
+        // dose = createDose(part.drugID, part.concentration, part.part)
+
+      }
     }
   }
 }
+
 console.log('Dose variants: ');
-console.log(Array.from(dose_sizes).sort((a, b) => a - b))
+console.log(Array.from(doses_array).sort((a, b) => a - b))
 
 // Define daily doses
 var daily_doses = []
@@ -65,7 +111,7 @@ for (let i = 0; i < number_of_days_to_calculate_doses; i++) {
 
   let closest_size = 0
   let smallest_diff = 9999
-  for (let size of dose_sizes) {
+  for (let size of drug_parts) {
     let diff = Math.abs(size - balance)
     if (diff < smallest_diff) {
       smallest_diff = diff
