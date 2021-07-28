@@ -122,7 +122,15 @@ for (let size1 of sizes_array) {
 }
 
 console.log('Dose variants: ')
-console.log(Array.from(doses_array).sort((a, b) => a - b))
+console.log(Array.from(doses_array).sort((a, b) => a.concentration - b.concentration))
+
+// for (part of doses_array) {
+//   console.log(part.drug_part.parts.length)
+// }
+//TODO mintis cia del paieskos
+console.log(doses_array[15].drug_part.parts.length)
+
+
 
 // // Define daily doses
 // var daily_doses = []
