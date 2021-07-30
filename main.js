@@ -1,7 +1,7 @@
 //Daily dose calculator for Warfarinum drugs
 //Define initial parrameters
 var recomended_weekly_doze = 41
-var max_dose_mg = 10
+var max_dose_mg = 21
 var number_of_days_to_calculate_doses = 28
 
 var recomended_daily_dose = recomended_weekly_doze / 7
@@ -26,12 +26,13 @@ function Medicine(name, mg, quantity, form, parts) {
   
 //create medicine database
 var medicines = []
-medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5]))
-medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5]))
+medicines.push(new Medicine('Orfarin', 2, 100, 'tablet', [1]))
+medicines.push(new Medicine('Warfarin', 7, 66, 'tablet', [1]))
+medicines.push(new Medicine('Warfarin', 11, 66, 'tablet', [1]))
 medicines.forEach(d => console.log(d))
 
 //create default doses
-let doses = []
+let base_doses = []
 for (medicine of medicines) {
   for (split_part of medicine.split_parts) {
     
@@ -42,33 +43,44 @@ for (medicine of medicines) {
         split_part: split_part
       }
     ]
-    doses.push(new Dose(dose_mg, drugs))
+    base_doses.push(new Dose(dose_mg, drugs))
   }
 }
-doses.forEach(d => console.log(d))
+base_doses.forEach((d) => console.log(d))
 
 
 //Expand doses options
-
-
-function fill_doses(temp_dose, drug_index) {
-  if (temp_dose.mg > max_dose_mg || drug_index === medicines.length -1 ) {
+let doses = []
+function fill_doses(temp_dose, base_dose_index) {
+  
+  if (base_dose_index === base_doses.length) {
     return
   }
-  let drug = medicines[drug_index]
-  while(temp_dose.mg < max_dose_mg) {
-    temp_dose.mg += drug.mg
-    temp_dose.drugs.push(drug)
+  
+  let base_dose = base_doses[base_dose_index]
+  do {
+    fill_doses(new Dose(temp_dose.mg, [...temp_dose.drugs]), base_dose_index + 1)
     
-    if (!doses.find((e) => e.mg === temp_dose.mg)) {
-      new_dose = new Dose(temp_dose.mg, [...temp_dose.drugs])
-      doses.push(temp_dose)
+    let existing_size_index = doses.findIndex((e) => e.mg === temp_dose.mg)
+    if (existing_size_index === -1) {
+      // There was no dose with this size, let's add it
+      doses.push(new Dose(temp_dose.mg, [...temp_dose.drugs]))
+    } else {
+      // There's already a dose with the same size
+      let existing_size_dose = doses[existing_size_index]
+
+      // Is the temp_dose better?
+      if (temp_dose.drugs.length < existing_size_dose.drugs.length) {
+        doses[existing_size_index] = new Dose(temp_dose.mg, [...temp_dose.drugs])
+      }
     }
-    
-    fill_doses(new Dose(temp_dose.mg, [...temp_dose.drugs]), drug_index + 1)
-  }
+
+    temp_dose.mg += base_dose.mg
+    temp_dose.drugs.push(base_dose.drugs[0])
+  } while(temp_dose.mg <= max_dose_mg)
 }
 fill_doses(new Dose(0, []), 0)
+doses.sort((l, r) => r.mg - l.mg)
 console.log(doses);
 
 // let sizes_array = Array.from(doses)
