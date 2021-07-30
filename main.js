@@ -52,10 +52,9 @@ doses.forEach(d => console.log(d))
 
 
 function fill_doses(temp_dose, drug_index) {
-  if (temp_dose.mg > max_dose_mg) {
-    return;
+  if (temp_dose.mg > max_dose_mg || drug_index === medicines.length -1 ) {
+    return
   }
-  let max_index = medicines.length - 1
   let drug = medicines[drug_index]
   while(temp_dose.mg < max_dose_mg) {
     temp_dose.mg += drug.mg
@@ -66,11 +65,7 @@ function fill_doses(temp_dose, drug_index) {
       doses.push(temp_dose)
     }
     
-    drug_index += 1
-    if (drug_index != max_index) {
-      
-      fill_doses(new Dose(temp_dose.mg, temp_dose.drugs), drug_index + 1)
-    }
+    fill_doses(new Dose(temp_dose.mg, temp_dose.drugs), drug_index + 1)
   }
 }
 fill_doses(new Dose(0, []), 0)
