@@ -62,7 +62,7 @@ function fill_doses(temp_dose, drug_index) {
     temp_dose.drugs.push(drug)
     
     if (!doses.find((e) => e.mg === temp_dose.mg)) {
-      new_dose = new Dose(temp_dose.mg, ...temp_dose.drugs)
+      new_dose = new Dose(temp_dose.mg, [...temp_dose.drugs])
       doses.push(temp_dose)
     }
     
