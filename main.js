@@ -1,7 +1,7 @@
 //Daily dose calculator for Warfarinum drugs
 //Define initial parrameters
 var recomended_weekly_doze = 41
-var max_dose_mg = 21
+var max_dose_mg = 10
 var number_of_days_to_calculate_doses = 28
 
 var recomended_daily_dose = recomended_weekly_doze / 7
@@ -26,9 +26,8 @@ function Medicine(name, mg, quantity, form, parts) {
   
 //create medicine database
 var medicines = []
-medicines.push(new Medicine('Orfarin', 2, 100, 'tablet', [1]))
-medicines.push(new Medicine('Warfarin', 7, 66, 'tablet', [1]))
-medicines.push(new Medicine('Warfarin', 11, 66, 'tablet', [1]))
+medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5]))
+medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5]))
 medicines.forEach(d => console.log(d))
 
 //create default doses
@@ -60,7 +59,7 @@ function fill_doses(temp_dose, base_dose_index) {
   let base_dose = base_doses[base_dose_index]
   do {
     fill_doses(new Dose(temp_dose.mg, [...temp_dose.drugs]), base_dose_index + 1)
-    
+    //get existing mg in the doses index
     let existing_size_index = doses.findIndex((e) => e.mg === temp_dose.mg)
     if (existing_size_index === -1) {
       // There was no dose with this size, let's add it
