@@ -65,7 +65,7 @@ function fill_doses(temp_dose, drug_index) {
       doses.push(temp_dose)
     }
     
-    fill_doses(new Dose(temp_dose.mg, temp_dose.drugs), drug_index + 1)
+    fill_doses(new Dose(temp_dose.mg, [...temp_dose.drugs]), drug_index + 1)
   }
 }
 fill_doses(new Dose(0, []), 0)
