@@ -48,39 +48,57 @@ for (medicine of medicines) {
 doses.forEach(d => console.log(d))
 
 
-//TODO padaryti perrinkima pilna
-//Expand doses to max options ex.10
+//Expand doses options
 
 
-
-let sizes_array = Array.from(doses)
-for (let size1 of sizes_array) {
-  for (let size2 of sizes_array) {
-    //create temporary dose
-    let temp_dose = new Dose(size1.mg, [...size1.drugs])
-    //continue until mg is lower max mg
-    while (temp_dose.mg + size2.mg <= max_dose_mg) {
-      //merge tempporary dose with one of existing dose in doses array
-      temp_dose.mg = temp_dose.mg + size2.mg
-      temp_dose.drugs = temp_dose.drugs.concat(size2.drugs)
-      //check the same mg in doses array
-      if (!doses.find((e) => e.mg === temp_dose.mg)) {
-        let new_dose = new Dose(temp_dose.mg, [...temp_dose.drugs])
-        doses.push(new_dose)
-      }
+function fill_doses(temp_dose, drug_index) {
+  if (temp_dose.mg > max_dose_mg) {
+    return;
+  }
+  
+  while(temp_dose.mg < max_dose_mg) {
+    let drug = temp_dose.drugs[drug_index]
+    temp_dose.mg += drug.mg
+    temp_dose.drugs.push(drug)
+    
+    if (!doses.find((e) => e.mg === temp_dose.mg)) {
+      doses.push(temp_dose)
     }
+    
+    fill_doses(new Dose(temp_dose.size, temp_dose.drugs), drug_index + 1)
   }
 }
-doses.sort((a, b) => a.mg - b.mg)
+fill_doses(new Dose(0, []), 0)
 console.log(doses);
 
-function doseOptimizator(dose) {
+// let sizes_array = Array.from(doses)
+// for (let size1 of sizes_array) {
+//   for (let size2 of sizes_array) {
+//     //create temporary dose
+//     let temp_dose = new Dose(size1.mg, [...size1.drugs])
+//     //continue until mg is lower max mg
+//     while (temp_dose.mg + size2.mg <= max_dose_mg) {
+//       //merge tempporary dose with one of existing dose in doses array
+//       temp_dose.mg = temp_dose.mg + size2.mg
+//       temp_dose.drugs = temp_dose.drugs.concat(size2.drugs)
+//       //check the same mg in doses array
+//       if (!doses.find((e) => e.mg === temp_dose.mg)) {
+//         let new_dose = new Dose(temp_dose.mg, [...temp_dose.drugs])
+//         doses.push(new_dose)
+//       }
+//     }
+//   }
+// }
+// doses.sort((a, b) => a.mg - b.mg)
+// console.log(doses);
+
+// function doseOptimizator(dose) {
   
-  console.log(dose);
-}
+//   console.log(dose);
+// }
 
 
-doses.forEach(d => doseOptimizator(d))
+// doses.forEach(d => doseOptimizator(d))
 
 // //Expand parts variants
 // let sizes_array = Array.from(doses_array)
