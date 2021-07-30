@@ -10,46 +10,49 @@ function generateUID() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
 
-function Dose(dose_mb, drugs) {
-  this.mg = dose_mb
-  this.drugs = drugs // [{drugId, part}]
+function Dose(dose_mg, drugs) {
+  this.mg = dose_mg
+  this.drugs = drugs // [{med_ID, unit_part}]
 }
 
-function Drug(name, mg, quantity, form, can_split) {
+function Medicine(name, mg, quantity, form, parts) {
     this.id = generateUID()
     this.name = name
     this.mg = mg
     this.quantity = quantity
     this.form = form
-    this.small_part = can_split ? 0.5 : 1
+    this.split_parts = parts // array
   }
   
-//create drugs database
-var drugs_arr = []
-drugs_arr.push(new Drug('Orfarin', 5, 100, 'tablet', true))
-drugs_arr.push(new Drug('Warfarin', 3, 66, 'tablet', true))
-drugs_arr.forEach(d => console.log('Drug: ', d))
+//create medicine database
+var medicines = []
+medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5]))
+medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5]))
+medicines.forEach(d => console.log(d))
+
+//create default doses
+let doses = []
+for (medicine of medicines) {
+  for (part of medicine.split_parts) {
+    
+    let dose_mg = medicine.mg * part
+    const drugs = [
+      {
+        med_id: medicine.id,
+        part: part
+      }
+    ]
+    doses.push(new Dose(dose_mg, drugs))
+  }
+}
+doses.forEach(d => console.log(d))
+
 
 //TODO padaryti perrinkima pilna
-//create default doses
-let doses_arr = []
-for (drug of drugs_arr) {
-  const dose_mb = drug.mg * drug.small_part
-  const drugs = [
-    {
-      id: drug.id,
-      part: drug.small_part
-    }
-  ]
-  doses_arr.push(new Dose(dose_mb, drugs))
-}
-doses_arr.forEach(d => console.log(d))
-
-
 //Expand doses to max options ex.10
 
 
-let sizes_array = Array.from(doses_arr)
+let sizes_array = Array.from(doses)
 for (let size1 of sizes_array) {
   for (let size2 of sizes_array) {
     let temp_dose = new Dose(size1.mg, [...size1.drugs])
@@ -59,14 +62,14 @@ for (let size1 of sizes_array) {
       temp_dose.drugs = temp_dose.drugs.concat(size2.drugs)//TODO problema
       let new_dose = new Dose(temp_dose.mg, [...temp_dose.drugs])
       
-      if (!doses_arr.find((e) => e.mg === new_dose.mg)) {
-        doses_arr.push(new_dose)
+      if (!doses.find((e) => e.mg === new_dose.mg)) {
+        doses.push(new_dose)
       }
     }
   }
 }
-// doses_arr.forEach(d => console.log(d))
-console.log(doses_arr);
+// doses.forEach(d => console.log(d))
+console.log(doses);
 
 
 
