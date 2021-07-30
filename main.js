@@ -2,162 +2,134 @@
 //Define initial parrameters
 var recomended_weekly_doze = 41
 var recomended_daily_dose = recomended_weekly_doze / 7
-var dose_variants_max_value = 10
+var dose_options_max_mg = 10
 var number_of_days_to_calculate_doses = 28
-//generates unique id
-function newUid() {
+
+// unique id generator
+function generateUID() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
-//create unique drugs_array - Factory function
-function createDrugs(
-  name,
-  concentration,
-  measurement,
-  quantity,
-  unit,
-  can_split
-) {
-  return {
-    id: newUid(),
-    name,
-    concentration,
-    measurement,
-    quantity,
-    unit,
-    can_split, //can one tablet be splitted to two parts? true/false
+
+function Dose(dose_mb, drugs) {
+  this.mg = dose_mb
+  this.drugs = drugs // [{drugId, part}]
+}
+
+function Drug(name, mg, quantity, form, can_split) {
+    this.id = generateUID()
+    this.name = name
+    this.mg = mg
+    this.quantity = quantity
+    this.form = form
+    this.small_part = can_split ? 0.5 : 1
   }
-}
-//creates drug parts(tablete/pils)
-function createDrugPart(drugID, part, concentration) {
-  return {
-    id: newUid(),
-    drugID,
-    part,
-    concentration,
-  }
-}
-//creates drug dose with tablete parts information
-function createDose(drug_part) {
-  return {
-    id: newUid(),
-    drug_part: drug_part,
-    concentration: drug_part.concentration
-    
-  }
-}
-
-//create new drugs_array
-var drugs_array = []
-drugs_array.push(createDrugs('Orfarin', 5, 'mg', 100, 'tablet', true))
-drugs_array.push(createDrugs('Orfarin', 3, 'mg', 100, 'tablet', true))
-
-//log info
-console.log('Weekly doze: ' + recomended_weekly_doze)
-console.log('Daily dose: ' + recomended_daily_dose + drugs_array[0].measurement)
-console.log('Drugs:')
-for (let drug of drugs_array) {
-  console.log(
-    'Concentration: ' +
-      drug.concentration +
-      drug.measurement +
-      ' can split: ' +
-      drug.can_split
-  )
-}
-
-//define default drug parts
-var drug_parts = []
-var concentration_array = []
-for (let drug of drugs_array) {
-  drug_parts.push(createDrugPart(drug.id, 1, drug.concentration))
-  concentration_array.push(drug.concentration)
-  if (drug.can_split) {
-    drug_parts.push(createDrugPart(drug.id, 0.5, drug.concentration / 2))
-    concentration_array.push(drug.concentration)
-  }
-}
-console.log('List of drug parts')
-console.log(drug_parts)
-for (drug of drug_parts) {
-  console.log(
-    'cons:' + drug.concentration + ' part:' + drug.part + ' DrugID:' + drug.id
-  )
-}
-
-//create default variants of doses ex.4 variants
-var doses_array = []
-for (part of drug_parts) {
-  let dose = createDose(part)
-  doses_array.push(dose)
-}
-console.log('Doses')
-
-for (dose of doses_array) {
-  console.log(dose)
   
-}
+//create drugs database
+var drugs_arr = []
+drugs_arr.push(new Drug('Orfarin', 5, 100, 'tablet', true))
+drugs_arr.push(new Drug('Warfarin', 3, 66, 'tablet', true))
+drugs_arr.forEach(d => console.log('Drug: ', d))
 
-//Expand parts variants
-let sizes_array = Array.from(doses_array)
+//TODO padaryti perrinkima pilna
+//create default doses
+let doses_arr = []
+for (drug of drugs_arr) {
+  const dose_mb = drug.mg * drug.small_part
+  const drugs = [
+    {
+      id: drug.id,
+      part: drug.small_part
+    }
+  ]
+  doses_arr.push(new Dose(dose_mb, drugs))
+}
+doses_arr.forEach(d => console.log(d))
+
+
+//Expand doses to max options ex.10
+
+
+let sizes_array = Array.from(doses_arr)
 for (let size1 of sizes_array) {
   for (let size2 of sizes_array) {
-    let total = {
-      sum: size1.concentration,
-      parts: [size1.drug_part],
-    }
-    while (total.sum + size2.concentration <= dose_variants_max_value) {
-      total.sum = total.sum + size2.concentration
-      total.parts.push(size2.drug_part)
-      //TODO reikia tobulinti paieska, kad parinktu su maziau objektu
-      if (!concentration_array.find((e) => e === total.sum)) {
-        concentration_array.push(total.sum)
-        drug_parts.push(total)
-        total.concentration = total.sum
-
-        let dose = createDose(total)
-        doses_array.push(dose)
+    let temp_dose = new Dose(size1.mg, [...size1.drugs])
+    
+    while (temp_dose.mg + size2.mg <= dose_options_max_mg) {
+      temp_dose.mg = temp_dose.mg + size2.mg
+      temp_dose.drugs = temp_dose.drugs.concat(size2.drugs)//TODO problema
+      let new_dose = new Dose(temp_dose.mg, [...temp_dose.drugs])
+      
+      if (!doses_arr.find((e) => e.mg === new_dose.mg)) {
+        doses_arr.push(new_dose)
       }
     }
   }
 }
-
-console.log('Dose variants: ')
-console.log(Array.from(doses_array).sort((a, b) => a.concentration - b.concentration))
-
-// for (part of doses_array) {
-//   console.log(part.drug_part.parts.length)
-// }
-//TODO mintis cia del paieskos
-console.log(doses_array[15].drug_part.parts.length)
+// doses_arr.forEach(d => console.log(d))
+console.log(doses_arr);
 
 
 
-// // Define daily doses
-// var daily_doses = []
-// var balance = 0
-// for (let i = 0; i < number_of_days_to_calculate_doses; i++) {
-//   balance += recomended_daily_dose
+// //Expand parts variants
+// let sizes_array = Array.from(doses_array)
+// for (let size1 of sizes_array) {
+//   for (let size2 of sizes_array) {
+//     let new_dose = {
+//       mg: size1.mg,
+//       parts: [size1.drug_part],
+//     }
+//     while (new_dose.mg + size2.mg <= dose_options_max_mg) {
+//       new_dose.mg = new_dose.mg + size2.mg
+//       new_dose.parts.push(size2.drug_part)
+//       //TODO reikia tobulinti paieska, kad parinktu su maziau objektu
+//       if (!mg_array.find((e) => e === new_dose.mg)) {
+//         mg_array.push(new_dose.mg)
+//         drug_parts.push(new_dose)
+//         new_dose.mg = new_dose.mg
 
-//   let closest_size = 0
-//   let smallest_diff = 9999
-//   for (let size of doses_array) {
-//     let diff = Math.abs(size - balance)
-//     if (diff < smallest_diff) {
-//       smallest_diff = diff
-//       closest_size = size
+//         let dose = createDose(new_dose)
+//         doses_array.push(dose)
+//       }
 //     }
 //   }
-
-//   daily_doses.push(closest_size)
-//   balance -= closest_size
 // }
-// console.log(daily_doses)
+// //doses optimizator
+// doses_array.sort((a, b) => a.mg - b.mg)
+// console.log('Dose variants: ')
+// console.log(Array.from(doses_array))
 
-// //calculate actual consumption
-// var sum_of_consumption = 0
-// for (let i = 0; i < daily_doses.length; i++) {
-//   sum_of_consumption = sum_of_consumption + daily_doses[i]
-// }
-// var consumed_weekly = (sum_of_consumption / daily_doses.length) * 7
-// console.log('Recommended per week: ' + recomended_weekly_doze)
-// console.log('Consumed per week: ' + consumed_weekly)
+// //TODO mintis cia del paieskos
+// // console.log(doses_array[14].drug_part.parts.length)
+
+
+
+
+// // // Define daily doses
+// // var daily_doses = []
+// // var balance = 0
+// // for (let i = 0; i < number_of_days_to_calculate_doses; i++) {
+// //   balance += recomended_daily_dose
+
+// //   let closest_size = 0
+// //   let smallest_diff = 9999
+// //   for (let size of doses_array) {
+// //     let diff = Math.abs(size - balance)
+// //     if (diff < smallest_diff) {
+// //       smallest_diff = diff
+// //       closest_size = size
+// //     }
+// //   }
+
+// //   daily_doses.push(closest_size)
+// //   balance -= closest_size
+// // }
+// // console.log(daily_doses)
+
+// // //calculate actual conmgption
+// // var mg_of_conmgption = 0
+// // for (let i = 0; i < daily_doses.length; i++) {
+// //   mg_of_conmgption = mg_of_conmgption + daily_doses[i]
+// // }
+// // var conmged_weekly = (mg_of_conmgption / daily_doses.length) * 7
+// // console.log('Recommended per week: ' + recomended_weekly_doze)
+// // console.log('Conmged per week: ' + conmged_weekly)
