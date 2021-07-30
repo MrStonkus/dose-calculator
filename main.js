@@ -1,10 +1,10 @@
 //Daily dose calculator for Warfarinum drugs
 //Define initial parrameters
 var recomended_weekly_doze = 41
-var recomended_daily_dose = recomended_weekly_doze / 7
-var dose_options_max_mg = 10
+var max_dose_mg = 21
 var number_of_days_to_calculate_doses = 28
 
+var recomended_daily_dose = recomended_weekly_doze / 7
 // unique id generator
 function generateUID() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
@@ -12,7 +12,7 @@ function generateUID() {
 
 function Dose(dose_mg, drugs) {
   this.mg = dose_mg
-  this.drugs = drugs // [{med_ID, unit_part}]
+  this.drugs = drugs // [{med_ID, split_part}]
 }
 
 function Medicine(name, mg, quantity, form, parts) {
@@ -26,52 +26,91 @@ function Medicine(name, mg, quantity, form, parts) {
   
 //create medicine database
 var medicines = []
-medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5]))
-medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5]))
+medicines.push(new Medicine('Orfarin', 2, 100, 'tablet', [1]))
+medicines.push(new Medicine('Warfarin', 7, 66, 'tablet', [1]))
+medicines.push(new Medicine('Warfarin', 11, 66, 'tablet', [1]))
 medicines.forEach(d => console.log(d))
 
 //create default doses
-let doses = []
+let base_doses = []
 for (medicine of medicines) {
-  for (part of medicine.split_parts) {
+  for (split_part of medicine.split_parts) {
     
-    let dose_mg = medicine.mg * part
+    let dose_mg = medicine.mg * split_part
     const drugs = [
       {
         med_id: medicine.id,
-        part: part
+        split_part: split_part
       }
     ]
-    doses.push(new Dose(dose_mg, drugs))
+    base_doses.push(new Dose(dose_mg, drugs))
   }
 }
-doses.forEach(d => console.log(d))
+base_doses.forEach((d) => console.log(d))
 
 
-//TODO padaryti perrinkima pilna
-//Expand doses to max options ex.10
-
-
-let sizes_array = Array.from(doses)
-for (let size1 of sizes_array) {
-  for (let size2 of sizes_array) {
-    let temp_dose = new Dose(size1.mg, [...size1.drugs])
+//Expand doses options
+let doses = []
+function fill_doses(temp_dose, base_dose_index) {
+  
+  if (base_dose_index === base_doses.length) {
+    return
+  }
+  
+  let base_dose = base_doses[base_dose_index]
+  do {
+    fill_doses(new Dose(temp_dose.mg, [...temp_dose.drugs]), base_dose_index + 1)
     
-    while (temp_dose.mg + size2.mg <= dose_options_max_mg) {
-      temp_dose.mg = temp_dose.mg + size2.mg
-      temp_dose.drugs = temp_dose.drugs.concat(size2.drugs)//TODO problema
-      let new_dose = new Dose(temp_dose.mg, [...temp_dose.drugs])
-      
-      if (!doses.find((e) => e.mg === new_dose.mg)) {
-        doses.push(new_dose)
+    let existing_size_index = doses.findIndex((e) => e.mg === temp_dose.mg)
+    if (existing_size_index === -1) {
+      // There was no dose with this size, let's add it
+      doses.push(new Dose(temp_dose.mg, [...temp_dose.drugs]))
+    } else {
+      // There's already a dose with the same size
+      let existing_size_dose = doses[existing_size_index]
+
+      // Is the temp_dose better?
+      if (temp_dose.drugs.length < existing_size_dose.drugs.length) {
+        doses[existing_size_index] = new Dose(temp_dose.mg, [...temp_dose.drugs])
       }
     }
-  }
+
+    temp_dose.mg += base_dose.mg
+    temp_dose.drugs.push(base_dose.drugs[0])
+  } while(temp_dose.mg <= max_dose_mg)
 }
-// doses.forEach(d => console.log(d))
+fill_doses(new Dose(0, []), 0)
+doses.sort((l, r) => r.mg - l.mg)
 console.log(doses);
 
+// let sizes_array = Array.from(doses)
+// for (let size1 of sizes_array) {
+//   for (let size2 of sizes_array) {
+//     //create temporary dose
+//     let temp_dose = new Dose(size1.mg, [...size1.drugs])
+//     //continue until mg is lower max mg
+//     while (temp_dose.mg + size2.mg <= max_dose_mg) {
+//       //merge tempporary dose with one of existing dose in doses array
+//       temp_dose.mg = temp_dose.mg + size2.mg
+//       temp_dose.drugs = temp_dose.drugs.concat(size2.drugs)
+//       //check the same mg in doses array
+//       if (!doses.find((e) => e.mg === temp_dose.mg)) {
+//         let new_dose = new Dose(temp_dose.mg, [...temp_dose.drugs])
+//         doses.push(new_dose)
+//       }
+//     }
+//   }
+// }
+// doses.sort((a, b) => a.mg - b.mg)
+// console.log(doses);
 
+// function doseOptimizator(dose) {
+  
+//   console.log(dose);
+// }
+
+
+// doses.forEach(d => doseOptimizator(d))
 
 // //Expand parts variants
 // let sizes_array = Array.from(doses_array)
@@ -81,7 +120,7 @@ console.log(doses);
 //       mg: size1.mg,
 //       parts: [size1.drug_part],
 //     }
-//     while (new_dose.mg + size2.mg <= dose_options_max_mg) {
+//     while (new_dose.mg + size2.mg <= max_dose_mg) {
 //       new_dose.mg = new_dose.mg + size2.mg
 //       new_dose.parts.push(size2.drug_part)
 //       //TODO reikia tobulinti paieska, kad parinktu su maziau objektu
