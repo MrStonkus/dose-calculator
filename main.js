@@ -1,5 +1,5 @@
 //Define initial parrameters
-var recomended_weekly_doze = 41.25
+var recomended_weekly_doze = 41
 var recomended_daily_dose = recomended_weekly_doze / 7
 var dose_variants_max_value = 10
 var number_of_days_to_calculate_doses = 28
@@ -24,7 +24,7 @@ function newUid() {
 //create new drugs
 var drugs = []
 drugs.push(createDrug(newUid(), 'Orfarin', 5, 'mg', 100, 'tablet', true))
-drugs.push(createDrug(newUid(), 'Orfarin', 5, 'mg', 100, 'tablet', true))
+drugs.push(createDrug(newUid(), 'Orfarin', 3, 'mg', 100, 'tablet', true))
 
 //List parrameters
 console.log('Weekly doze: ' + recomended_weekly_doze)
