@@ -30,7 +30,7 @@ medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5]))
 medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5]))
 medicines.forEach(d => console.log(d))
 
-//create base doses
+//create first base doses from medicines
 let base_doses = []
 for (medicine of medicines) {
   for (split_part of medicine.split_parts) {
@@ -48,7 +48,7 @@ for (medicine of medicines) {
 base_doses.forEach((d) => console.log(d))
 
 
-// Expand doses to all possible options. Use recursion
+// Expand doses to all possible options. Use recursive func
 let doses = []
 function fill_doses(temp_dose, base_dose_index) {
   // Go back if reached out of base doses array
@@ -61,7 +61,7 @@ function fill_doses(temp_dose, base_dose_index) {
     // Go to itself func with increment index
     fill_doses(new Dose(temp_dose.mg, [...temp_dose.drugs]), base_dose_index + 1)
     // Get index of the same size dose
-    let existing_size_index = doses.findIndex((e) => e.mg === temp_dose.mg)
+    let existing_size_index = doses.findIndex(e => e.mg === temp_dose.mg)
     if (existing_size_index === -1) {
       // There was no dose with this size, let's add it
       doses.push(new Dose(temp_dose.mg, [...temp_dose.drugs]))
