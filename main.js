@@ -1,8 +1,8 @@
 //Daily dose calculator for Warfarinum drugs
 //Define initial parrameters
-var recomended_weekly_doze = 41
+var recomended_weekly_doze = 41.25
 var max_dose_mg = 10
-var number_of_days_to_calculate_doses = 28
+var number_of_days_to_calculate_doses = 14
 
 var recomended_daily_dose = recomended_weekly_doze / 7
 // unique id generator
@@ -22,12 +22,13 @@ function Medicine(name, mg, quantity, form, parts) {
     this.quantity = quantity
     this.form = form
     this.split_parts = parts // array
+    
   }
   
 //create medicine database
 var medicines = []
 medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5]))
-medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5]))
+// medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5]))
 medicines.forEach(d => console.log(d))
 
 //create first base doses from medicines
@@ -45,7 +46,7 @@ for (medicine of medicines) {
     base_doses.push(new Dose(dose_mg, drugs))
   }
 }
-base_doses.forEach((d) => console.log(d))
+// base_doses.forEach((d) => console.log(d))
 
 
 // Expand doses to all possible options. Use recursive func
@@ -82,7 +83,7 @@ function fill_doses(temp_dose, base_dose_index) {
 //send empty dose to recursion function
 fill_doses(new Dose(0, []), 0)
 doses.sort((l, r) => r.mg - l.mg)
-console.log(doses);
+// console.log(doses)
 
 
 // Define daily doses
@@ -91,25 +92,51 @@ var balance = 0
 for (let i = 0; i < number_of_days_to_calculate_doses; i++) {
   balance += recomended_daily_dose
 
-  let closest_size = 0
   let smallest_diff = 9999
-  for (let size of doses) {
-    let diff = Math.abs(size.mg - balance)
+  for (let dose of doses) {
+    let diff = Math.abs(dose.mg - balance)
     if (diff < smallest_diff) {
           smallest_diff = diff
-          closest_size = size.mg
+          closest_dose = dose
     }
   }
-  daily_doses.push(closest_size)
-  balance -= closest_size
+  daily_doses.push(closest_dose)
+  balance -= closest_dose.mg
 }
-console.log(daily_doses)
+// console.log(daily_doses)
 
-//calculate actual consumption
-// // var mg_of_conmgption = 0
-// // for (let i = 0; i < daily_doses.length; i++) {
-// //   mg_of_conmgption = mg_of_conmgption + daily_doses[i]
-// // }
-// // var conmged_weekly = (mg_of_conmgption / daily_doses.length) * 7
-// // console.log('Recommended per week: ' + recomended_weekly_doze)
-// // console.log('Conmged per week: ' + conmged_weekly)
+// Calculate actual weekly consumption
+let total_consumed = 0
+daily_doses.forEach((dose) => (total_consumed += dose.mg))
+actual_weekly_consumption = (total_consumed / daily_doses.length) * 7
+
+console.log('Recommended per week: ' + recomended_weekly_doze)
+console.log('Consumed per week: ' + actual_weekly_consumption)
+
+// Show daily doses
+let d = new Date()
+let dateToday = d.toISOString().slice(0, 10)
+console.log('Daily doses for: ' + dateToday)
+console.log('| Date | mg | Week | Month |');
+
+let weekDays = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]
+
+for (let i = 0; i < daily_doses.length; i++) {
+  
+  let date = d.getDate()
+  let mg = daily_doses[i].mg 
+  let weekDay = weekDays[d.getDay()]
+  let month = d.getMonth() + 1
+
+  console.log('%s, %s, %s, %s', date, mg, weekDay, month)
+  d.setDate(d.getDate() + 1)
+}
+
