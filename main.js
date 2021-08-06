@@ -2,9 +2,9 @@
 //Define initial parrameters
 var recomendedWeeklyDoze = 41.25
 var maxDoseMG = 10
-var numberOfDaysToCalculateDoses = 14
-
+var numberOfDaysToCalculateDoses = 28
 var recomendedDailyDose = recomendedWeeklyDoze / 7
+let startDate = '2021-07-29'
 // unique id generator
 function generateUID() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
@@ -29,7 +29,7 @@ function Medicine(name, mg, quantity, type, parts, color) {
 //create medicine database
 var medicines = []
 medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5], 'red'))
-medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
+// medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
 medicines.forEach(d => console.log(d))
 
 //create first base doses from medicines
@@ -115,7 +115,12 @@ console.log('Recommended per week: ' + recomendedWeeklyDoze)
 console.log('Consumed per week: ' + actualWeeklyConsumption)
 
 // Show daily doses
-let d = new Date()
+let d = new Date(startDate)
+
+
+  console.log(d);
+
+
 let dateToday = d.toISOString().slice(0, 10)
 console.log('Daily doses for: ' + dateToday)
 console.log('| Date | mg | Description | Week | Month |');
