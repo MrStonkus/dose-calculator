@@ -1,90 +1,178 @@
+//Daily dose calculator for Warfarinum drugs
 //Define initial parrameters
-var recomended_weekly_doze = 41
-var recomended_daily_dose = recomended_weekly_doze / 7
-var dose_variants_max_value = 10
-var number_of_days_to_calculate_doses = 28
-
-//Factory function of drug
-function createDrug(id,name, concentration, measurement, quantity, unit, can_split) {
-  return {
-    id,
-    name,
-    concentration,
-    measurement,
-    quantity,
-    unit,
-    can_split,
-  }
-}
-//generates unique id
-function newUid() {
+var recomendedWeeklyDoze = 41.25
+var maxDoseMG = 10
+var numberOfDaysToCalculateDoses = 28
+var recomendedDailyDose = recomendedWeeklyDoze / 7
+let startDate = '2021-07-29'
+// unique id generator
+function generateUID() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
 
-//create new drugs
-var drugs = []
-drugs.push(createDrug(newUid(), 'Orfarin', 5, 'mg', 100, 'tablet', true))
-drugs.push(createDrug(newUid(), 'Orfarin', 3, 'mg', 100, 'tablet', true))
-
-//List parrameters
-console.log('Weekly doze: ' + recomended_weekly_doze)
-console.log('Daily dose: ' + recomended_daily_dose + drugs[0].measurement)
-for (let i = 0; i < drugs.length; i++) {
-  console.log(drugs[i])
+function Dose(doseMg, drugs) {
+  this.mg = doseMg
+  this.drugs = drugs // [{med_ID, splitPart}]
 }
 
-//Define dose variants array
-var dose_sizes = new Set()
+function Medicine(name, mg, quantity, type, parts, color) {
+  this.id = generateUID()
+  this.name = name
+  this.mg = mg
+  this.quantity = quantity
+  this.type = type
+  this.splitParts = parts // array
+  this.color = color
+    
+  }
+  
+//create medicine database
+var medicines = []
+medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5], 'red'))
+// medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
+medicines.forEach(d => console.log(d))
 
-for (let drug of drugs) {
-  dose_sizes.add(drug.concentration)
-  if (drug.can_split) {
-    dose_sizes.add(drug.concentration / 2)
+//create first base doses from medicines
+let baseDoses = []
+for (medicine of medicines) {
+  for (splitPart of medicine.splitParts) {
+    
+    let doseMg = medicine.mg * splitPart
+    const drugs = [
+      {
+        medID: medicine.id,
+        splitPart: splitPart
+      }
+    ]
+    baseDoses.push(new Dose(doseMg, drugs))
   }
 }
+// baseDoses.forEach((d) => console.log(d))
 
-//Expand dose variants
-let sizes_array = Array.from(dose_sizes)
-for (let size1 of sizes_array) {
-  for (let size2 of sizes_array) {
-    let total = size1
-    while (total + size2 <= dose_variants_max_value) {
-      total += size2
-      dose_sizes.add(total)
+
+// Expand doses to all possible options. Use recursive func
+let doses = []
+function fillDoses(tempDose, baseDoseIndex) {
+  // Go back if reached out of base doses array
+  if (baseDoseIndex === baseDoses.length) {
+    return
+  }
+  // Get base dose from base doses array
+  let baseDose = baseDoses[baseDoseIndex]
+  do {
+    // Go to itself func with increment index
+    fillDoses(new Dose(tempDose.mg, [...tempDose.drugs]), baseDoseIndex + 1)
+    // Get index of the same size dose
+    let existingSizeIndex = doses.findIndex(e => e.mg === tempDose.mg)
+    if (existingSizeIndex === -1) {
+      // There was no dose with this size, let's add it
+      doses.push(new Dose(tempDose.mg, [...tempDose.drugs]))
+    } else {
+      // There's already a dose with the same size
+      let existingSizeDose = doses[existingSizeIndex]
+
+      // Is the tempDose better?
+      if (tempDose.drugs.length < existingSizeDose.drugs.length) {
+        doses[existingSizeIndex] = new Dose(tempDose.mg, [...tempDose.drugs])
+      }
     }
-  }
+
+    tempDose.mg += baseDose.mg
+    tempDose.drugs.push(baseDose.drugs[0])
+  } while(tempDose.mg <= maxDoseMG)
 }
-console.log('Dose variants: ');
-console.log(Array.from(dose_sizes).sort((a, b) => a - b))
+//send empty dose to recursion function
+fillDoses(new Dose(0, []), 0)
+doses.sort((l, r) => r.mg - l.mg)
+// console.log(doses)
+
 
 // Define daily doses
-var daily_doses = []
+var dailyDoses = []
 var balance = 0
-for (let i = 0; i < number_of_days_to_calculate_doses; i++) {
-  balance += recomended_daily_dose
+for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
+  balance += recomendedDailyDose
 
-  let closest_size = 0
-  let smallest_diff = 9999
-  for (let size of dose_sizes) {
-    let diff = Math.abs(size - balance)
-    if (diff < smallest_diff) {
-      smallest_diff = diff
-      closest_size = size
+  let smallestDiff = 9999
+  for (let dose of doses) {
+    let diff = Math.abs(dose.mg - balance)
+    if (diff < smallestDiff) {
+          smallestDiff = diff
+          closestDose = dose
     }
   }
-
-  daily_doses.push(closest_size)
-  balance -= closest_size
+  dailyDoses.push(closestDose)
+  balance -= closestDose.mg
 }
-console.log(daily_doses)
+// console.log(dailyDoses)
 
-//calculate actual consumption
-var sum_of_consumption = 0
-for (let i = 0; i < daily_doses.length; i++) {
-  sum_of_consumption = sum_of_consumption + daily_doses[i]
+// Calculate actual weekly consumption
+let totalConsumed = 0
+dailyDoses.forEach((dose) => (totalConsumed += dose.mg))
+actualWeeklyConsumption = (totalConsumed / dailyDoses.length) * 7
+
+console.log('Recommended per week: ' + recomendedWeeklyDoze)
+console.log('Consumed per week: ' + actualWeeklyConsumption)
+
+// Show daily doses
+let d = new Date(startDate)
+
+
+  console.log(d);
+
+
+let dateToday = d.toISOString().slice(0, 10)
+console.log('Daily doses for: ' + dateToday)
+console.log('| Date | mg | Description | Week | Month |');
+
+let weekDays = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]
+function getDoseDescription(dose) {
+  let descriptionText = ''
+  let aggregatedDrugs = {}
+  // let med = medicines.find(med => med.id === dose.drugs[0].medID)
+  // let sameDrugs = dose.drugs.filter(drug => drug.medID === med.id)
+  // console.log(sameDrugs);
+  
+  // Let's aggregate drugs to know how many identical drugs are
+  for (drug of dose.drugs) {
+
+    // Return medical by drug.medID
+    let med = medicines.find(med => med.id === drug.medID)
+    // Create drug key
+    let key = drug.medID + drug.splitPart
+    
+    if (!aggregatedDrugs[key]) {
+
+      // Key is't found in dic
+      // Value= [count, med, part]
+      aggregatedDrugs[key] = [1, med, drug.splitPart]
+
+    } else {
+      // Key was found in dic
+      aggregatedDrugs[key] = [aggregatedDrugs[key] + 1, med, drug.splitPart]
+    }
+  }
+    // descriptionText += med.color + ' ' + drug.splitPart + ' ' + med.type + ' '
+  return aggregatedDrugs
+  //TODO neispresta problema del tableciu kiekio rodymo
 }
-var consumed_weekly = (sum_of_consumption / daily_doses.length) * 7
-console.log('Recommended per week: ' + recomended_weekly_doze)
-console.log('Consumed per week: ' + consumed_weekly)
+for (let i = 0; i < dailyDoses.length; i++) {
+  
+  let date = d.getDate()
+  let mg = dailyDoses[i].mg
+  let description = getDoseDescription(dailyDoses[i])
+  let weekDay = weekDays[d.getDay()]
+  let month = d.getMonth() + 1
 
+  console.log('%s, %s mg -> %s, %s, %s', date, mg, description, weekDay, month)
+  d.setDate(d.getDate() + 1)
+}
 
