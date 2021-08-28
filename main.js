@@ -1,16 +1,16 @@
 //Daily dose calculator for Warfarinum drugs by Valdas Stonkus.
 
 //Define initial parrameters
-var recomendedWeeklyDoze = 60.25
+var recomendedWeeklyDoze = 41.25
 var maxDoseMG = 10
-var numberOfDaysToCalculateDoses = 60
+var numberOfDaysToCalculateDoses = 366
 var recomendedDailyDose = recomendedWeeklyDoze / 7
 let startDate = '2021-07-29'
 
 //create medicine database
 var medicines = []
 medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5], 'red'))
-// medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
+medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
 medicines.forEach(d => console.log(d))
 
 let doses = generatePosibleDoses(medicines)
@@ -70,6 +70,7 @@ for (let i = 0; i < dailyDoses.length; i++) {
   d.setDate(d.getDate() + 1)
 }
 
+// -----------------FUNCTIONS----------------------
 //create first base doses from medicines
 function getFirstBaseDoses(medicines) {
   let baseDoses = []

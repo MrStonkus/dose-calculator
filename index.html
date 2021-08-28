@@ -4,10 +4,61 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dose Calculator</title>
     <script src="main.js"></script>
 </head>
 <body>
-    
+    <header>
+        <h2>Dose Calculator</h2>
+    </header>
+    <medicine-container>
+        <h3>Medicine</h3>
+        <ul id="medList"></ul>
+    </medicine-container>
+    <Options-container>
+        <h3>Options</h3>
+        <ul>
+            <li>Weekly dose: <span id="weeklyDose"></span> mg.</li>
+            <li>Dayly dose: <span id="daylyDose"></span> mg.</li>
+        </ul>
+        <p id="view"></p>
+    </Options-container>
+
+<script>
+    //list medicines
+      let list = document.getElementById("medList");
+      medicines.forEach((med) => {
+        let li = document.createElement("li");
+        li.innerText = med.name + '\
+        ' + med.mg + 'mg.,\
+        quantity: ' + med.quantity + ' tablets,\
+        color: ' + med.color;
+        list.appendChild(li);
+      });
+
+    //list options
+    displayVariable('weeklyDose', recomendedWeeklyDoze)  
+    displayVariable('daylyDose', recomendedDailyDose.toFixed(2))  
+
+
+
+
+    function displayVariable(elementId, variableName) {
+        document.getElementById(elementId).innerHTML = variableName;
+    }
+  </script>
+
 </body>
+<style>
+    header {
+        background-color: blue;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 60px;
+        border: 1px solid;
+        color: beige; 
+
+    }
+</style>
 </html>
