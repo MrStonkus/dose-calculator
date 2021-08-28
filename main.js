@@ -1,9 +1,9 @@
 //Daily dose calculator for Warfarinum drugs by Valdas Stonkus.
 
 //Define initial parrameters
-var recomendedWeeklyDoze = 41.25
+var recomendedWeeklyDoze = 60.25
 var maxDoseMG = 10
-var numberOfDaysToCalculateDoses = 28
+var numberOfDaysToCalculateDoses = 60
 var recomendedDailyDose = recomendedWeeklyDoze / 7
 let startDate = '2021-07-29'
 
@@ -13,51 +13,32 @@ medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5], 'red'))
 // medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
 medicines.forEach(d => console.log(d))
 
-//create first base doses from medicines
-let baseDoses = []
-for (medicine of medicines) {
-  for (splitPart of medicine.splitParts) {
-    
-    let doseMg = medicine.mg * splitPart
-    const drugs = [
-      {
-        medID: medicine.id,
-        splitPart: splitPart
-      }
-    ]
-    baseDoses.push(new Dose(doseMg, drugs))
-  }
-}
-
-// Expand doses to all possible options.
-let doses = []
-fillDoses(new Dose(0, []), 0)
-doses.sort((l, r) => r.mg - l.mg)
+let doses = generatePosibleDoses(medicines)
 
 // Define daily doses
 var dailyDoses = []
-var balance = 0
+var toServe = 0
 for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
-  balance += recomendedDailyDose
-  let smallestDiff = 9999
+  toServe += recomendedDailyDose
+  let smallestDiff = Number.MAX_SAFE_INTEGER
   for (let dose of doses) {
-    let diff = Math.abs(dose.mg - balance)
+    let diff = Math.abs(dose.mg - toServe)
     if (diff < smallestDiff) {
           smallestDiff = diff
           closestDose = dose
     }
   }
   dailyDoses.push(closestDose)
-  balance -= closestDose.mg
+  toServe -= closestDose.mg
 }
 
 // Calculate actual weekly consumption
 let totalConsumed = 0
 dailyDoses.forEach((dose) => (totalConsumed += dose.mg))
-actualWeeklyConsumption = (totalConsumed / dailyDoses.length) * 7
+averageWeeklyConsumption = (totalConsumed / dailyDoses.length) * 7
 
 console.log('Recommended per week: ' + recomendedWeeklyDoze)
-console.log('Consumed per week: ' + actualWeeklyConsumption)
+console.log('Consumed per week: ' + averageWeeklyConsumption)
 
 // Show daily doses
 let d = new Date(startDate)
@@ -89,8 +70,35 @@ for (let i = 0; i < dailyDoses.length; i++) {
   d.setDate(d.getDate() + 1)
 }
 
+//create first base doses from medicines
+function getFirstBaseDoses(medicines) {
+  let baseDoses = []
+  for (medicine of medicines) {
+    for (splitPart of medicine.splitParts) {
+      let doseMg = medicine.mg * splitPart
+      const drugs = [
+        {
+          medID: medicine.id,
+          splitPart: splitPart,
+        },
+      ]
+      baseDoses.push(new Dose(doseMg, drugs))
+    }
+  }
+  return baseDoses
+}
+
+// Expand doses to all possible options.
+function generatePosibleDoses(medicines) {
+  let doses = []
+  let baseDoses = getFirstBaseDoses(medicines)
+  generatePosibleDosesRecur(doses, baseDoses, new Dose(0, []), 0)
+  doses.sort((l, r) => r.mg - l.mg)
+  return doses
+}
+
 // Expand doses to all possible options. Use recursive func
-function fillDoses(tempDose, baseDoseIndex) {
+function generatePosibleDosesRecur(doses, baseDoses, tempDose, baseDoseIndex) {
   // Go back if reached out of base doses array
   if (baseDoseIndex === baseDoses.length) {
     return
@@ -99,7 +107,12 @@ function fillDoses(tempDose, baseDoseIndex) {
   let baseDose = baseDoses[baseDoseIndex]
   do {
     // Go to itself func with increment index
-    fillDoses(new Dose(tempDose.mg, [...tempDose.drugs]), baseDoseIndex + 1)
+    generatePosibleDosesRecur(
+      doses,
+      baseDoses,
+      new Dose(tempDose.mg, [...tempDose.drugs]),
+      baseDoseIndex + 1
+    )
     // Get index of the same size dose
     let existingSizeIndex = doses.findIndex(e => e.mg === tempDose.mg)
     if (existingSizeIndex === -1) {
