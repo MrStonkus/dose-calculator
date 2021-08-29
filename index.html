@@ -19,10 +19,11 @@
         <h3>Options</h3>
         <ul>
             <li>Weekly dose: <span id="weeklyDose"></span> mg.</li>
-            <li>Dayly dose: <span id="daylyDose"></span> mg.</li>
+            <li>Daily dose: <span id="dailyDose"></span> mg.</li>
         </ul>
         <p id="view"></p>
     </Options-container>
+    <doses-schedule>
 
 <script>
     //list medicines
@@ -38,7 +39,7 @@
 
     //list options
     displayVariable('weeklyDose', recomendedWeeklyDoze)  
-    displayVariable('daylyDose', recomendedDailyDose.toFixed(2))  
+    displayVariable('dailyDose', recomendedDailyDose.toFixed(2))  
 
 
 

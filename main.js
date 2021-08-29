@@ -3,35 +3,70 @@
 //Define initial parrameters
 var recomendedWeeklyDoze = 41.25
 var maxDoseMG = 10
-var numberOfDaysToCalculateDoses = 366
+var numberOfDaysToCalculateDoses = 35
 var recomendedDailyDose = recomendedWeeklyDoze / 7
 let startDate = '2021-07-29'
 
 //create medicine database
 var medicines = []
 medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5], 'red'))
-medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
+// medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
 medicines.forEach(d => console.log(d))
 
 let doses = generatePosibleDoses(medicines)
 
 // Define daily doses
 var dailyDoses = []
-var toServe = 0
+var cumulativeDifference = 0
 for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
-  toServe += recomendedDailyDose
+  cumulativeDifference += recomendedDailyDose
   let smallestDiff = Number.MAX_SAFE_INTEGER
   for (let dose of doses) {
-    let diff = Math.abs(dose.mg - toServe)
+    let diff = Math.abs(dose.mg - cumulativeDifference)
     if (diff < smallestDiff) {
-          smallestDiff = diff
-          closestDose = dose
+      smallestDiff = diff
+      closestDose = dose
     }
   }
+  //add cumulative difference to daily dose
+  cumulativeDifference -= closestDose.mg
+  closestDose.cumDiff = cumulativeDifference
+  //TODO ispresti cumDiff dubliavimasi
   dailyDoses.push(closestDose)
-  toServe -= closestDose.mg
 }
 
+//create doses schedule
+const d = new Date(startDate)
+let dosesSchedule = []
+for (let i = 0; i < dailyDoses.length; i++) {
+  let dose = {
+    date: new Date(d),
+    mg: dailyDoses[i].mg,
+    cumulativeDifference: dailyDoses[i].cumDiff,
+    description: getDoseDescription(dailyDoses[i])
+  }
+  dosesSchedule.push(dose)
+  
+  d.setDate(d.getDate() + 1)
+}
+
+//show schedule in console
+let weekDays = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+]
+for (let dailyDose of dosesSchedule) {
+  let { date, mg, cumulativeDifference } = dailyDose
+  let weekDay = weekDays[date.getDay()]
+  date = date.toISOString().slice(0, 10)
+  mg = mg + ' mg.'
+  console.log(date, mg, weekDay, cumulativeDifference)
+}
 // Calculate actual weekly consumption
 let totalConsumed = 0
 dailyDoses.forEach((dose) => (totalConsumed += dose.mg))
@@ -40,35 +75,6 @@ averageWeeklyConsumption = (totalConsumed / dailyDoses.length) * 7
 console.log('Recommended per week: ' + recomendedWeeklyDoze)
 console.log('Consumed per week: ' + averageWeeklyConsumption)
 
-// Show daily doses
-let d = new Date(startDate)
-
-console.log(d);
-
-let dateToday = d.toISOString().slice(0, 10)
-console.log('Daily doses for: ' + dateToday)
-console.log('| Date | mg | Description | Week | Month |');
-
-let weekDays = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-]
-
-for (let i = 0; i < dailyDoses.length; i++) {
-  let date = d.getDate()
-  let mg = dailyDoses[i].mg
-  let description = getDoseDescription(dailyDoses[i])
-  let weekDay = weekDays[d.getDay()]
-  let month = d.getMonth() + 1
-
-  console.log('%s, %s mg -> %s, %s, %s', date, mg, description, weekDay, month)
-  d.setDate(d.getDate() + 1)
-}
 
 // -----------------FUNCTIONS----------------------
 //create first base doses from medicines
