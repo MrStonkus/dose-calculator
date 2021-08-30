@@ -25,13 +25,13 @@ for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
     let diff = Math.abs(dose.mg - cumulativeDifference)
     if (diff < smallestDiff) {
       smallestDiff = diff
-      closestDose = dose
+      closestDose = {...dose}
     }
   }
   //add cumulative difference to daily dose
   cumulativeDifference -= closestDose.mg
   closestDose.cumDiff = cumulativeDifference
-  //TODO ispresti cumDiff dubliavimasi
+  
   dailyDoses.push(closestDose)
 }
 
@@ -69,11 +69,12 @@ for (let dailyDose of dosesSchedule) {
 }
 // Calculate actual weekly consumption
 let totalConsumed = 0
-dailyDoses.forEach((dose) => (totalConsumed += dose.mg))
+dosesSchedule.forEach((dose) => (totalConsumed += dose.mg))
 averageWeeklyConsumption = (totalConsumed / dailyDoses.length) * 7
 
 console.log('Recommended per week: ' + recomendedWeeklyDoze)
 console.log('Consumed per week: ' + averageWeeklyConsumption)
+console.log('Difference: ' + (recomendedWeeklyDoze - averageWeeklyConsumption + ' mg./week'))
 
 
 // -----------------FUNCTIONS----------------------
