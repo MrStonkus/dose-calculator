@@ -3,14 +3,14 @@
 //Define initial parrameters
 var recomendedWeeklyDoze = 41.25
 var maxDoseMG = 10
-var numberOfDaysToCalculateDoses = 35
+var numberOfDaysToCalculateDoses = 45
 var recomendedDailyDose = recomendedWeeklyDoze / 7
 let startDate = '2021-07-29'
 
 //create medicine database
 var medicines = []
 medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5], 'red'))
-// medicines.push(new Medicine('Warfarin', 3, 66, 'tablet', [1, 0.5], 'blue'))
+// medicines.push(new Medicine('Warfarin', 3, 100, 'tablet', [1, 0.5], 'blue'))
 medicines.forEach(d => console.log(d))
 
 let doses = generatePosibleDoses(medicines)
@@ -25,13 +25,22 @@ for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
     let diff = Math.abs(dose.mg - cumulativeDifference)
     if (diff < smallestDiff) {
       smallestDiff = diff
-      closestDose = {...dose}
+      closestDose = { ...dose }
     }
   }
+  // //substract dose mg from medicine 
+  // closestDose.drugs.forEach(drug => {
+  //   medicines.forEach(med => {
+  //     if (drug.medID == med.id) {
+          
+  //       med.quantityForSchedule -= (drug.splitPart * med.mg)
+  //     }
+  //   })
+  // })
   //add cumulative difference to daily dose
   cumulativeDifference -= closestDose.mg
   closestDose.cumDiff = cumulativeDifference
-  
+
   dailyDoses.push(closestDose)
 }
 
@@ -187,4 +196,5 @@ function Medicine(name, mg, quantity, type, parts, color) {
   this.type = type
   this.splitParts = parts // array
   this.color = color
+  this.quantityForSchedule = mg * quantity
 }
