@@ -76,12 +76,9 @@ for (let dailyDose of dosesSchedule) {
   mg = mg + ' mg.'
   console.log(date, mg, weekDay, cumulativeDifference)
 }
-// Calculate actual weekly consumption
-let totalConsumed = 0
-dosesSchedule.forEach((dose) => (totalConsumed += dose.mg))
-averageWeeklyConsumption = (totalConsumed / dailyDoses.length) * 7
 
 console.log('Recommended per week: ' + recomendedWeeklyDoze)
+const averageWeeklyConsumption = getWeeklyConsumption(dosesSchedule)
 console.log('Consumed per week: ' + averageWeeklyConsumption)
 console.log('Difference: ' + (recomendedWeeklyDoze - averageWeeklyConsumption + ' mg./week'))
 
@@ -129,45 +126,45 @@ function generatePosibleDosesRecur(doses, baseDoses, tempDose, baseDoseIndex) {
       baseDoses,
       new Dose(tempDose.mg, [...tempDose.drugs]),
       baseDoseIndex + 1
-    )
-    // Get index of the same size dose
-    let existingSizeIndex = doses.findIndex(e => e.mg === tempDose.mg)
-    if (existingSizeIndex === -1) {
-      // There was no dose with this size, let's add it
-      doses.push(new Dose(tempDose.mg, [...tempDose.drugs]))
-    } else {
-      // There's already a dose with the same size
-      let existingSizeDose = doses[existingSizeIndex]
-
-      // Is the tempDose better?
-      if (tempDose.drugs.length < existingSizeDose.drugs.length) {
-        doses[existingSizeIndex] = new Dose(tempDose.mg, [...tempDose.drugs])
+      )
+      // Get index of the same size dose
+      let existingSizeIndex = doses.findIndex(e => e.mg === tempDose.mg)
+      if (existingSizeIndex === -1) {
+        // There was no dose with this size, let's add it
+        doses.push(new Dose(tempDose.mg, [...tempDose.drugs]))
+      } else {
+        // There's already a dose with the same size
+        let existingSizeDose = doses[existingSizeIndex]
+        
+        // Is the tempDose better?
+        if (tempDose.drugs.length < existingSizeDose.drugs.length) {
+          doses[existingSizeIndex] = new Dose(tempDose.mg, [...tempDose.drugs])
+        }
       }
-    }
-
-    tempDose.mg += baseDose.mg
-    tempDose.drugs.push(baseDose.drugs[0])
-  } while(tempDose.mg <= maxDoseMG)
+      
+      tempDose.mg += baseDose.mg
+      tempDose.drugs.push(baseDose.drugs[0])
+    } while(tempDose.mg <= maxDoseMG)
 }
-
+  
 // get compact description like: { ks1vgoxdijetmplg2y1: [Array], 'ks1vgoxdijetmplg2y0.5': [Array] }
 function getDoseDescription(dose) {
   let aggregatedDrugs = {}
   
   // Let's aggregate drugs to know how many identical drugs are
   for (drug of dose.drugs) {
-
+    
     // Return medical by drug.medID
     let med = medicines.find(med => med.id === drug.medID)
     // Create drug key
     let key = drug.medID + drug.splitPart
     
     if (!aggregatedDrugs[key]) {
-
+      
       // Key is't found in dic
       // Value= [count, med, part]
       aggregatedDrugs[key] = [1, med, drug.splitPart]
-
+      
     } else {
       // Key was found in dic
       aggregatedDrugs[key] = [aggregatedDrugs[key] + 1, med, drug.splitPart]
@@ -175,18 +172,18 @@ function getDoseDescription(dose) {
   }
   return aggregatedDrugs
 }
-
+  
 // unique id generator
 function generateUID() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
-
+  
 // Dose class function
 function Dose(doseMg, drugs) {
   this.mg = doseMg
   this.drugs = drugs // [{med_ID, splitPart}]
 }
-
+  
 // Medicine class function
 function Medicine(name, mg, quantity, type, parts, color) {
   this.id = generateUID()
@@ -197,4 +194,11 @@ function Medicine(name, mg, quantity, type, parts, color) {
   this.splitParts = parts // array
   this.color = color
   this.quantityForSchedule = mg * quantity
+}
+    
+// Calculate actual weekly consumption
+function getWeeklyConsumption(dosesSchedule) {
+  let totalConsumed = 0
+  dosesSchedule.forEach((dose) => (totalConsumed += dose.mg))
+  return (totalConsumed / dailyDoses.length) * 7
 }
