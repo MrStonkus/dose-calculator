@@ -3,9 +3,10 @@
 //Define initial parrameters
 var recomendedWeeklyDoze = 41.25
 var maxDoseMG = 10
-var numberOfDaysToCalculateDoses = 45
+var numberOfDaysToCalculateDoses = 28
 var recomendedDailyDose = recomendedWeeklyDoze / 7
-let startDate = '2021-07-29'
+let startDate = '2021-09-29'
+var cumulativeDifference = 0.35714285714288074 // 0= generate new, Number= generate from existing chedule
 
 //create medicine database
 var medicines = []
@@ -17,7 +18,7 @@ let doses = generatePosibleDoses(medicines)
 
 // Define daily doses
 var dailyDoses = []
-var cumulativeDifference = 0
+// var cumulativeDifference = 0
 for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
   cumulativeDifference += recomendedDailyDose
   let smallestDiff = Number.MAX_SAFE_INTEGER
@@ -28,15 +29,6 @@ for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
       closestDose = { ...dose }
     }
   }
-  // //substract dose mg from medicine 
-  // closestDose.drugs.forEach(drug => {
-  //   medicines.forEach(med => {
-  //     if (drug.medID == med.id) {
-          
-  //       med.quantityForSchedule -= (drug.splitPart * med.mg)
-  //     }
-  //   })
-  // })
   //add cumulative difference to daily dose
   cumulativeDifference -= closestDose.mg
   closestDose.cumDiff = cumulativeDifference
