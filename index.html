@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +8,7 @@
     <title>Dose Calculator</title>
     <script src="main.js"></script>
 </head>
+
 <body>
     <header>
         <h2>Dose Calculator</h2>
@@ -24,30 +26,42 @@
         <p id="view"></p>
     </Options-container>
     <doses-schedule>
+        <h3>Shedule</h3>
+        <ul id="sheduleList"></ul>
 
-<script>
-    //list medicines
-      let list = document.getElementById("medList");
-      medicines.forEach((med) => {
-        let li = document.createElement("li");
-        li.innerText = med.name + '\
+    </doses-schedule>
+
+    <script>
+        //list medicines
+        let list = document.getElementById("medList");
+        medicines.forEach((med) => {
+            let li = document.createElement("li");
+            li.innerText = med.name + '\
         ' + med.mg + 'mg.,\
         quantity: ' + med.quantity + ' tablets,\
         color: ' + med.color;
-        list.appendChild(li);
-      });
+            list.appendChild(li);
+        });
 
-    //list options
-    displayVariable('weeklyDose', recomendedWeeklyDoze)  
-    displayVariable('dailyDose', recomendedDailyDose.toFixed(2))  
+        //list options
+        displayVariable('weeklyDose', recomendedWeeklyDoze)
+        displayVariable('dailyDose', recomendedDailyDose.toFixed(2))
+        // displayVariable('sheduleList', recomendedDailyDose.toFixed(2))
+
+        //list shedule
+        // let list = document.getElementById("sheduleList");
+        // dosesSchedule.forEach((dose) => {
+        //     let li = document.createElement("li");
+        //     li.innerText = dose.mg;
+        //     list.appendChild(li);
+        // });
 
 
 
-
-    function displayVariable(elementId, variableName) {
-        document.getElementById(elementId).innerHTML = variableName;
-    }
-  </script>
+        function displayVariable(elementId, variableName) {
+            document.getElementById(elementId).innerHTML = variableName;
+        }
+    </script>
 
 </body>
 <style>
@@ -58,8 +72,9 @@
         align-items: center;
         height: 60px;
         border: 1px solid;
-        color: beige; 
+        color: beige;
 
     }
 </style>
+
 </html>
