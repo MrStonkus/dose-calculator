@@ -1,25 +1,24 @@
 //Daily dose calculator for Warfarinum drugs by Valdas Stonkus.
 
 //Define initial parrameters
-var recomendedWeeklyDoze = 38.23
-var maxDoseMG = 10
-var numberOfDaysToCalculateDoses = 90
-var recomendedDailyDose = recomendedWeeklyDoze / 7
-let startDate = '2021-11-24'
-var cumulativeDifference = 0 // 0= generate new, Number= generate from existing chedule
+let recomendedWeeklyDoze = 38.23
+let maxDoseMG = 10
+let numberOfDaysToCalculateDoses = 90
+let startDate = '2021-11-25'
+let cumulativeDifference = 0 // 0= generate new, Number= generate from existing chedule
 
-//create medicine database
-var medicines = []
+//create medicine data
+let medicines = []
 medicines.push(new Medicine('Orfarin', 5, 100, 'tablet', [1, 0.5], 'red'))
 // medicines.push(new Medicine('Warfarin', 3, 100, 'tablet', [1, 0.5], 'blue'))
-medicines.forEach((d) => console.log(d))
+medicines.forEach((med) => console.log(med))
 
 let doses = generatePosibleDoses(medicines)
 
 // Define daily doses
-var dailyDoses = []
-// var cumulativeDifference = 0
+let dailyDoses = []
 for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
+	const recomendedDailyDose = recomendedWeeklyDoze / 7
 	cumulativeDifference += recomendedDailyDose
 	let smallestDiff = Number.MAX_SAFE_INTEGER
 	for (let dose of doses) {
@@ -37,19 +36,7 @@ for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
 }
 
 //create doses schedule
-const d = new Date(startDate)
-let dosesSchedule = []
-for (let i = 0; i < dailyDoses.length; i++) {
-	let dose = {
-		date: new Date(d),
-		mg: dailyDoses[i].mg,
-		cumulativeDifference: dailyDoses[i].cumDiff,
-		description: getDoseDescription(dailyDoses[i]),
-	}
-	dosesSchedule.push(dose)
-
-	d.setDate(d.getDate() + 1)
-}
+let dosesSchedule = getDosesSchedule(dailyDoses, startDate)
 
 //show schedule in console
 let weekDays = [
@@ -78,6 +65,24 @@ console.log(
 )
 
 // -----------------FUNCTIONS----------------------
+// generate shedule of doses
+function getDosesSchedule(dailyDoses, startDate) {
+	const d = new Date(startDate)
+	let dosesSchedule = []
+	for (let i = 0; i < dailyDoses.length; i++) {
+		let dose = {
+			date: new Date(d),
+			mg: dailyDoses[i].mg,
+			cumulativeDifference: dailyDoses[i].cumDiff,
+			description: getDoseDescription(dailyDoses[i]),
+		}
+		dosesSchedule.push(dose)
+
+		d.setDate(d.getDate() + 1)
+	}
+	return dosesSchedule
+}
+
 //create first base doses from medicines
 function getFirstBaseDoses(medicines) {
 	let baseDoses = []
