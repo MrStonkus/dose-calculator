@@ -4,7 +4,7 @@
   "description": "This code calculatate INR drugs weekly doze",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon node main.js"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
   "homepage": "https://github.com/MrStonkus/doze-calculator#readme",
   "devDependencies": {
     "eslint": "^7.31.0",
-    "eslint-plugin-vue": "^7.14.0"
-  },
-  "dependencies": {}
+    "eslint-plugin-vue": "^7.14.0",
+    "nodemon": "^2.0.15"
+  }
 }
