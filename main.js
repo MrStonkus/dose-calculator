@@ -1,12 +1,12 @@
 //Daily dose calculator for Warfarinum drugs by Valdas Stonkus.
 
 //Define initial parrameters
-let recomendedWeeklyDoze = 39.18
+let recomendedWeeklyDoze = 40.74
 let maxDoseMG = 10
 let numberOfDaysToCalculateDoses = 90
-let startDate = '2022-02-20'
+let startDate = '2022-03-13'
 // 0= generate new or previous day cumu.diff number to generate from existing chedule
-let cumulativeDifference = 0
+let cumulativeDifference = -0.4600000000000035
 
 //create medicine data
 let medicines = []
