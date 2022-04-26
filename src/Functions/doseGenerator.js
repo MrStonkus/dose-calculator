@@ -152,7 +152,10 @@ function agregateDrugs(dose) {
 	return aggregatedDrugs
 }
 
-export function showScheduleInConsole(schDoses, weeklyDose) {
+export function showScheduleInConsole(schDoses, weeklyDose, medicines) {
+	console.log('---------- SCHEDULER ----------')
+	medicines.forEach((med) => console.log(med))
+
 	let weekDays = [
 		'sunday',
 		'monday',
