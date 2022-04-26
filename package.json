@@ -4,7 +4,7 @@
   "description": "This code calculatate INR drugs weekly doze",
   "main": "main.js",
   "scripts": {
-    "dev": "nodemon node main.js"
+    "start": "nodemon node main.js"
   },
   "repository": {
     "type": "git",

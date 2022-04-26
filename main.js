@@ -1,10 +1,12 @@
+
 //Daily dose calculator for Warfarinum drugs by Valdas Stonkus.
 
 //Define initial parrameters
 let recomendedWeeklyDoze = 40.74
 let maxDoseMG = 10
 let numberOfDaysToCalculateDoses = 90
-let startDate = '2022-03-13'
+let startDate = new Date('2022-03-13')
+console.log(startDate.toLocaleDateString())
 // 0= generate new or previous day cumu.diff number to generate from existing chedule
 let cumulativeDifference = -0.4600000000000035
 
@@ -18,7 +20,7 @@ let doses = generatePosibleDoses(medicines)
 
 // Define daily doses
 let dailyDoses = []
-for (let i = 0; i < numberOfDaysToCalculateDoses; i++) {
+for (let i = 0 ; i < numberOfDaysToCalculateDoses; i++) {
 	const recomendedDailyDose = recomendedWeeklyDoze / 7
 	cumulativeDifference += recomendedDailyDose
 	let smallestDiff = Number.MAX_SAFE_INTEGER
@@ -52,7 +54,8 @@ let weekDays = [
 for (let dailyDose of dosesSchedule) {
 	let { date, mg, cumulativeDifference } = dailyDose
 	let weekDay = weekDays[date.getDay()]
-	date = date.toISOString().slice(0, 10)
+
+	date = date.toLocaleDateString()
 	mg = mg + ' mg.'
 	console.log(date, mg, weekDay, cumulativeDifference)
 }
@@ -68,7 +71,7 @@ console.log(
 // -----------------FUNCTIONS----------------------
 // generate shedule of doses
 function getDosesSchedule(dailyDoses, startDate) {
-	const d = new Date(startDate)
+	const d = startDate
 	let dosesSchedule = []
 	for (let i = 0; i < dailyDoses.length; i++) {
 		let dose = {
@@ -78,9 +81,10 @@ function getDosesSchedule(dailyDoses, startDate) {
 			description: getDoseDescription(dailyDoses[i]),
 		}
 		dosesSchedule.push(dose)
-
+		
 		d.setDate(d.getDate() + 1)
 	}
+
 	return dosesSchedule
 }
 
