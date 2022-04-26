@@ -1,14 +1,16 @@
 // -----------------export export FUNCTIONS for dose generator----------------------
-export function medicine(name, mg, quantity, parts, color) {
-	return {
-		id: generateUID(),
-		name,
-		mg,
-		quantity,
-		splitParts: parts, // array
-		color,
-		quantityForSchedule: mg * quantity,
-	}
+export function generateMedicines(medArr) {
+	return medArr.map((m) => {
+		return {
+			id: generateUID(),
+			name: m.name,
+			mg: m.mg,
+			quantity: m.quantity,
+			splitParts: m.splitParts, // array
+			color: m.color,
+			quantityInMg: m.mg * m.quantity,
+		}
+	})
 }
 
 // unique id generator
@@ -28,12 +30,12 @@ export function generatePosibleDoses(medicines, maxDoseMG) {
 //create first base doses from medicines
 function getFirstBaseDoses(medicines) {
 	let baseDoses = []
-	for (medicine of medicines) {
-		for (let splitPart of medicine.splitParts) {
-			let doseMg = medicine.mg * splitPart
+	for (let med of medicines) {
+		for (let splitPart of med.splitParts) {
+			let doseMg = med.mg * splitPart
 			const drugs = [
 				{
-					medID: medicine.id,
+					medID: med.id,
 					splitPart: splitPart,
 				},
 			]
@@ -91,10 +93,10 @@ function generatePosibleDosesRecur(
 	} while (tempDose.mg <= maxDoseMG)
 }
 
-export function getDailyDoses(weeklyDose, nrDays, cumulDiff, posibleDoses) {
+export function getDailyDoses(weeklyDose, nrDays, posibleDoses, cumulDiff=0) {
 	// Define daily doses
-  let dailyDoses = []
-  let closestDose
+	let dailyDoses = []
+	let closestDose
 	for (let i = 0; i < nrDays; i++) {
 		const recomendedDailyDose = weeklyDose / 7
 		cumulDiff += recomendedDailyDose
