@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "This code calculatate INR drugs weekly doze",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "start": "nodemon node main.js"
   },
