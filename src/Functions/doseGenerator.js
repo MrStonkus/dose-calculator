@@ -1,5 +1,4 @@
 // -----------------export export FUNCTIONS for dose generator----------------------
-// -----------------FUNCTIONS----------------------
 export function medicine(name, mg, quantity, parts, color) {
 	return {
 		id: generateUID(),
@@ -21,7 +20,7 @@ function generateUID() {
 export function generatePosibleDoses(medicines, maxDoseMG) {
 	let doses = []
 	let baseDoses = getFirstBaseDoses(medicines)
-	generatePosibleDosesRecur(doses, baseDoses, dose(0, []), 0)
+	generatePosibleDosesRecur(doses, baseDoses, dose(0, []), 0, maxDoseMG)
 	doses.sort((l, r) => r.mg - l.mg)
 	return doses
 }
@@ -51,7 +50,13 @@ function dose(doseMg, drugs) {
 	}
 }
 // Expand doses to all possible options. Use recursive func
-function generatePosibleDosesRecur(doses, baseDoses, tempDose, baseDoseIndex) {
+function generatePosibleDosesRecur(
+	doses,
+	baseDoses,
+	tempDose,
+	baseDoseIndex,
+	maxDoseMG = 10
+) {
 	// Go back if reached out of base doses array
 	if (baseDoseIndex === baseDoses.length) {
 		return
@@ -83,7 +88,7 @@ function generatePosibleDosesRecur(doses, baseDoses, tempDose, baseDoseIndex) {
 
 		tempDose.mg += baseDose.mg
 		tempDose.drugs.push(baseDose.drugs[0])
-	} while (tempDose.mg <= 10)
+	} while (tempDose.mg <= maxDoseMG)
 }
 
 export function getDailyDoses(weeklyDose, nrDays, cumulDiff, posibleDoses) {
@@ -122,7 +127,6 @@ export function getDosesSchedule(dailyDoses, startDate) {
 			medPart: agregateDrugs(dailyDoses[i]),
 		}
 		dosesSchedule.push(shedulDose)
-		console.log(shedulDose)
 		d.setDate(d.getDate() + 1)
 	}
 	return dosesSchedule
